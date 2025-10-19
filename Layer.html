@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Simple Counter</title>
+<style>
+  body{font-family:Arial, sans-serif;display:flex;height:100vh;background:#f0f0f0;padding:20px;gap:20px;box-sizing:border-box}
+  .card{background:#fff;padding:24px;border-radius:10px;box-shadow:0 4px 12px rgba(0,0,0,.08);width:320px}
+  h1{font-size:1.6rem;margin:0 0 12px}
+  h2{margin:6px 0}
+  button{display:inline-block;padding:10px 14px;border-radius:6px;border:none;background:#007BFF;color:#fff;cursor:pointer;margin:6px 0}
+  button:disabled{opacity:.5;cursor:not-allowed}
+  .will{display:none} /* hidden until unlocked */
+  ul{padding-left:18px;margin:8px 0}
+  .small{font-size:.9rem}
+	.prestige{display:none}
+</style>
+</head>
+<body>
+<div class="first">
+  <div class="card">
+    <h1>????</h1>
+    <h2 id="blood-value" >Blood: 0.00</h2>
+    <h2 id="will-value">Will: 0.00</h2>
+    <div id="counter-value"></div>
+    <button id="increment-btn" >Stop bleeding (gain Will)</button>
+    <button id="purchase-btn" >Revive / Start</button>
+  </div>
+
+  <div class="card">
+    <button id="will-blood" class="will">Restores blood: 1 Will</button>
+    <button id="hope-mult" class="will">Doubles this runs hope gain: 5 Will</button>
+	<button id="blood-produce" class="will">Produce blood: 10 Will</button>
+    <div style="margin-top:12px">
+      <ul>
+        <li><h2 id="hope-value" class="small">Hope: 0.00</h2></li>
+        <li><button id="will-gain" class="small">Increase will gain: 0.10 Hope</button></li>
+        <li><button id="blood-gain" class="small">Increase starting blood: 1 Hope</button></li>
+        <li><button id="will-upgrade" class="small">Discover will upgrades: 5 Hope</button></li>
+	<li>
+	<button id="blood-drain" class="small">Reduce blood drain: 10 Hope</button>
+		</li>
+	<li>
+	<button id="btn-blood-gain" class="small">Increase blood gain: 20 Hope</button>
+	</li>
+	<li>
+	<input
+	type="text"
+	id="dev-mode"></input>
+	</li>
+      </ul>
+    </div>
+  </div>
+</div>
+<div class="card prestige" id="prestige-div">
+	<button id="evolve">Evolve</button>
+	<div id="prestigeTwo">
+	<h2 id="mutagen-label">Mutagen: 0</h2>
+	<button id="brain-unlock">Unlock the mind</button>
+		</div>
+	<div id="brain-div">
+	<h2 id="thought-label">Thoughts: 0</h2>
+	<input type="checkbox" id="think-btn">Think</input>
+</div>
+	</div>
+  <div class="card" style="flex:1">
+    <p id="story-text">You're bleeding out</p>
+  </div>
+
+<script>
+/* --- Elements --- */
+const firstScreen = document.getElementsByClassName('first')
+
+const bloodValue = document.getElementById('blood-value');
+const willText = document.getElementById('will-value');
+const hopeValue = document.getElementById('hope-value');
+const storyText = document.getElementById('story-text');
+
+const incrementButton = document.getElementById('increment-btn');
+const purchaseButton = document.getElementById('purchase-btn');
+
+const willBlood = document.getElementById('will-blood');
+const willGain = document.getElementById('will-gain');
+const bloodGain = document.getElementById('blood-gain');
+const willUpgrade = document.getElementById('will-upgrade');
+const hopeMult = document.getElementById('hope-mult');
+const bloodDrain = document.getElementById('blood-drain');
+const btnGainBlood = document.getElementById('btn-blood-gain');
+const bloodproduce = document.getElementById('blood-produce')
+
+const prestigeDiv = document.getElementById('prestige-div')
+const evolveBtn = document.getElementById('evolve')
+const prestigeGrade = document.getElementById('prestigeTwo')
+
+const mutagenLabel = document.getElementById('mutagen-label')
+const brainBtn = document.getElementById('brain-unlock')
+
+const brainDiv = document.getElementById('brain-div')
+const thinkBtn = document.getElementById('think-btn')
+const thoughtLabel = document.getElementById('thought-label')
+
+const devMode = document.getElementById('dev-mode');
+
+/* --- Game state --- */
+let remainingTime = 0;        // authoritative timer (seconds)
+let tickMs = 100;             // tick every 100ms
+let decayPerTick = tickMs/1000; // seconds lost per tick
+let prestigeCheck = 0
+let timeBefore = 0
+
+let Startblood = 10;          // base starting blood for a run
+let bloodBonus = 0;           // added by heals during run (persistent for run)
+let bloodGainMult = 1;
+let will = 0;                 // displayed will you spend/use
+let trueWill = 0;             // will accumulated for converting to hope on death
+let hope = 0;                 // currency between runs
+
+let willMultiply = 1;         // will gain multiplier
+let timerInterval = null;
+let dead = true;              // start as not running until start/revive
+let diedOnce = false;
+let hopeOnce = false;
+
+/* --- Upgrade costs/scale --- */
+let willGainCost = 0.1;       // cost in hope for next will-gain upgrade
+let willGainScale = 2;       // multiplicative scale after purchase
+
+let bloodGainCost = 1;        // cost in hope for starting blood upgrade
+let bloodGainScale = 3;     // scale multiplier after purchase
+
+let willBloodCost = 1;        // will cost to use willBlood heal
+let willBloodScale = 0.1;     // increase to willBloodCost after each use
+
+let bloodDrainCost = 10;
+let bloodDrainScale = 1.5
+
+let bloodMultCost = 20
+let bloodMultScale = 1.75
+
+let willGainLevel = 0
+let bloodGainLevel = 0
+let bloodDrainLevel = 0
+let bloodMultLevel = 0
+let startingBloodLevel = 0
+let willBloodLevel = 0
+let bloodProductLevel = 0
+
+let hopeMultiplier = 1
+let timeMult = 1
+
+let bloodProduct = 0
+let bloodProductScale = 1.3
+let bloodProductCost = 10
+let willShow = false
+let prestigeTriggered = false
+
+let mutagen = 0
+let thinkLoss = 0
+let thinking = false
+let thought = 0
+
+
+/* ---------- Utility ---------- */
+function resetGame() {
+  localStorage.removeItem('gameSave');
+  location.reload();
+}
+function loadGame() {
+  const saved = JSON.parse(localStorage.getItem('gameSave'));
+  if (!saved) return;
+
+  hope = saved.hope ?? hope;
+  Startblood = saved.Startblood ?? Startblood;
+  bloodGainMult = saved.bloodGainMult ?? bloodGainMult;
+  willMultiply = saved.willMultiply ?? willMultiply;
+  willShow = saved.willShow ?? willShow;
+  willGainLevel = saved.willGainLevel ?? willGainLevel;
+  bloodGainLevel = saved.bloodGainLevel ?? bloodGainLevel;
+  bloodDrainLevel = saved.bloodDrainLevel ?? bloodDrainLevel;
+  bloodMultLevel = saved.bloodMultLevel ?? bloodMultLevel;
+  startingBloodLevel = saved.startingBloodLevel ?? startingBloodLevel;
+  willBloodLevel = saved.willBloodLevel ?? willBloodLevel;
+  bloodProductLevel = saved.bloodProductLevel ?? bloodProductLevel;
+  mutagen = saved.mutagen ?? mutagen;
+}
+function updateDisplays(){
+  bloodValue.textContent = (remainingTime > 0 && !dead) ? `Blood: ${remainingTime.toFixed(2)}` : dead ? "Blood: (dead)" : `Blood: ${remainingTime.toFixed(2)}`;
+  willText.textContent = `Will: ${will.toFixed(2)}`;
+  hopeValue.textContent = `Hope: ${hope.toFixed(2)}`;
+  willBlood.textContent = `Restores blood: ${willCreepedLabel()} Will`
+saveGame()
+}
+
+function saveGame() {
+  const saveData = {
+    hope,
+    Startblood,
+    bloodGainMult,
+    willMultiply,
+    willShow,
+    willGainLevel,
+    bloodGainLevel,
+    bloodDrainLevel,
+    bloodMultLevel,
+    startingBloodLevel,
+    willBloodLevel,
+    bloodProductLevel,
+	mutagen
+  };
+
+  localStorage.setItem('gameSave', JSON.stringify(saveData));
+}
+
+/* ---------- Timer / run control ---------- */
+function startRun(){
+  // initialize run values
+  dead = false;
+  remainingTime = Startblood + 0; // fresh start; bloodBonus starts at 0
+  bloodBonus = 0;
+  will = 0;
+  trueWill = 0;
+  storyText.textContent = "You're bleeding out";
+  clearInterval(timerInterval);
+  timerInterval = setInterval(updateTimer, tickMs);
+  updateDisplays();
+}
+
+function updateTimer(){
+  if (dead) return;
+  // decrement authoritative remainingTime
+	timeBefore = remainingTime
+  remainingTime = remainingTime - (decayPerTick * timeMult) + bloodProduct - thinkLoss;
+thought += 0.1
+  // clamp so it doesn't go wildly negative for display purposes
+  if (remainingTime <= 0){
+    remainingTime = 0;
+    handleDeath();
+  } if (remainingTime > Startblood) {
+	prestigeTrigger()
+}
+	
+  updateDisplays();
+}
+
+function handleDeath(){
+  if (dead) return;
+  dead = true;
+  clearInterval(timerInterval);
+  // award hope equal to trueWill (what you actually generated during run)
+  hope = parseFloat(((hope + trueWill) * hopeMultiplier).toFixed(2));
+  storyText.textContent = diedOnce ? "You are getting better... You're still dying but improving." : "You died but that's okay this time you can try again. You're second chance gives you HOPE.";
+  diedOnce = true;
+  hopeOnce = true;
+  // reset run-specific values
+  hopeMultiplier = 1
+  will = 0;
+  trueWill = 0;
+  willBloodCost = 1
+if (willShow == true) {
+  hopeMult.style.display = "inline-block"
+saveGame()
+}
+	bloodProductCost = 10
+bloodproduce.textContent = `Produce blood: ${bloodProductCost} Will`
+  updateDisplays();
+  
+}
+
+function prestigeTrigger() {
+if (prestigeTriggered) return;
+  prestigeTriggered = true
+storyText.textContent = 'The bleeding stops but you are still weak you must.'
+for (let i = 0; i < firstScreen.length; i++) {
+    firstScreen[i].style.display = 'none';
+}
+prestigeDiv.style.display = 'inline-block'
+prestigeGrade.style.display = 'none'
+brainDiv.style.display = 'none'
+}
+/* -----------Dev mode-----------*/
+
+devMode.addEventListener('input', () => {
+hope = parseFloat(devMode.value) || 0
+updateDisplays()
+})
+
+
+evolveBtn.addEventListener('click', () => {
+clearInterval(timerInterval);
+for (let i = 0; i < firstScreen.length; i++) {
+firstScreen[i].style.display = 'inline-block'
+}
+prestigeGrade.style.display = 'inline-block'
+evolveBtn.style.display = 'none'
+ willBlood.style.display = 'none';
+	hopeMult.style.display = 'none'
+	bloodproduce.style.display = 'none'
+ Startblood = 10;          // base starting blood for a run
+ bloodBonus = 0;           // added by heals during run (persistent for run)
+ bloodGainMult = 1;
+ will = 0;                 // displayed will you spend/use
+ trueWill = 0;             // will accumulated for converting to hope on death
+willGainCost = 0.1;       // cost in hope for next will-gain upgrade willGainScale = 2;       // multiplicative scale after purchase
+
+bloodGainCost = 1;        // cost in hope for starting blood upgrade
+bloodGainScale = 3;     // scale multiplier after purchase
+
+ willBloodCost = 1;        // will cost to use willBlood heal
+ willBloodScale = 0.1;     // increase to willBloodCost after each use
+
+ bloodDrainCost = 10;
+ bloodDrainScale = 1.5
+
+ bloodMultCost = 20
+ bloodMultScale = 1.75
+
+ willGainLevel = 0
+ bloodGainLevel = 0
+ bloodDrainLevel = 0
+ bloodMultLevel = 0
+ startingBloodLevel = 0
+ willBloodLevel = 0
+ bloodProductLevel = 0
+
+ hopeMultiplier = 1
+ timeMult = 1
+
+ bloodProduct = 0
+ bloodProductScale = 1.3
+ bloodProductCost = 10
+ willShow = false
+
+prestigeTriggered = false
+mutagen += 1
+
+mutagenLabel.textContent  = `Mutagen: ${mutagen}`
+
+bloodGain.textContent = `Increase starting blood: ${bloodGainCost.toFixed(2)} Hope`
+btnGainBlood.textContent = `Increase blood gain: ${bloodMultCost.toFixed(2)} Hope`
+
+	bloodDrain.textContent = `Reduce blood drain: ${bloodDrainCost.toFixed(2)} Hope`
+
+willGain.textContent = `Increase will gain: ${willGainCost.toFixed(2)} Hope`
+
+bloodGain.textContent = `Increase starting blood: ${bloodGainCost.toFixed(2)} Hope`
+saveGame()
+startRun()
+})
+
+
+thinkBtn.addEventListener('click',() => {
+if (thinking == false) {
+thinking = true
+thinkLoss = 1
+}
+thinking = false
+thinkLoss = 0
+})
+
+bloodproduce.addEventListener('click', () => {
+if (!dead && will >= bloodProductCost && bloodProductLevel == 0) {
+	will = will - bloodProductCost
+	bloodProductCost = bloodProductCost * bloodProductScale
+	bloodProduct = bloodProduct + 0.1
+bloodProductLevel += 1
+	updateDisplays()
+if (bloodProductLevel == 1) {
+bloodproduce.textContent = 'Maxed'
+} else {
+bloodproduce.textContent = `Produce blood: ${bloodProductCost.toFixed(2)} Will`
+}
+}
+})
+
+
+btnGainBlood.addEventListener('click', () => {
+	if (dead && hope >= bloodMultCost && bloodGainLevel < 5) {
+		bloodGainLevel += 1
+		hope = hope - bloodMultCost
+		bloodGainMult = bloodGainMult + 1
+		bloodMultCost = bloodMultCost * bloodMultScale
+		if (bloodGainLevel == 5) {
+		btnGainBlood.textContent = 'Maxed'
+} else {
+		btnGainBlood.textContent = `Increase blood gain: ${bloodMultCost.toFixed(2)} Hope`
+}
+	updateDisplays()
+
+}
+		
+
+})
+
+bloodDrain.addEventListener('click', () => {
+ if (dead && hope >= bloodDrainCost && bloodDrainLevel < 9) {
+	bloodDrainLevel += 1
+	hope = hope - bloodDrainCost
+	bloodDrainCost = bloodDrainCost * bloodDrainScale
+	timeMult = timeMult - 0.1
+	if (bloodDrainLevel == 9) {
+	bloodDrain.textContent = 'Maxed'
+} else {
+	bloodDrain.textContent = `Reduce blood drain: ${bloodDrainCost.toFixed(2)} Hope`
+}
+		updateDisplays()
+}
+})
+hopeMult.addEventListener('click', () => {
+if (!dead && will >= 5) {
+hopeMultiplier += 1
+will = will - 5
+hopeMult.style.display = 'none'}
+})
+// Gain will while alive
+incrementButton.addEventListener('click', () => {
+  if (dead) return;
+  const gain = 0.01 * willMultiply;
+  will += gain;
+  trueWill += gain;
+  updateDisplays();
+});
+
+// Revive / Start
+purchaseButton.addEventListener('click', () => {
+  if (dead) {
+    startRun();
+  }
+});
+
+// "Restore blood" - spend will in-run to add seconds
+willBlood.addEventListener('click', () => {
+  if (dead) return;
+  if (will >= willBloodCost && willBloodLevel < 10){
+    will -= willBloodCost;
+    // scale cost for next use
+    willBloodCost = parseFloat((willBloodCost + willBloodScale).toFixed(2));
+    // Add persistent seconds directly to remainingTime (this works because remainingTime is authoritative)
+    remainingTime += (1 * bloodGainMult);
+    // update button text to reflect new cost
+willBloodLevel += 1
+if (willBloodLevel == 10) {
+	willBlood.textContent = 'Maxed'
+} else {
+    willBlood.textContent = `Restores blood: ${willCreepedLabel()} Will`;
+}
+    updateDisplays();
+  }
+});
+
+// helper label for willBlood button
+function willCreepedLabel(){
+  return willBloodCost.toFixed(2);
+}
+
+/* ---------- Upgrades ---------- */
+// Increase will gain (cost in hope)
+willGain.addEventListener('click', () => {
+  if (hope >= willGainCost && dead == true && willGainLevel <= 10){
+    hope -= willGainCost;
+    willMultiply += 1;
+    willGainCost *= willGainScale;
+	willGainLevel += 1
+	if (willGainLevel == 10) {
+    willGain.textContent = 'Maxed'
+} else {
+    willGain.textContent = `Increase will gain: ${willGainCost.toFixed(2)} Hope`;
+}
+    updateDisplays();
+  }
+});
+
+// Increase starting blood permanently (cost in hope)
+bloodGain.addEventListener('click', () => {
+  if (hope >= bloodGainCost && dead == true && startingBloodLevel < 5) {
+    hope -= bloodGainCost;
+	startingBloodLevel += 1
+    Startblood += 5;
+    bloodGainCost *= bloodGainScale;
+	if (startingBloodLevel == 5) {
+	bloodGain.textContent = 'Maxed'
+}
+ else {
+    bloodGain.textContent = `Increase starting blood: ${bloodGainCost.toFixed(2)} Hope`;
+}
+    updateDisplays();
+  }
+});
+brainBtn.addEventListener('click', () => {
+if (mutagen >= 1) {
+mutagen -= 1
+mutagenLabel.textContent = `Mutagen: ${mutagen}`
+brainDiv.style.display = 'inline-block'
+}
+})
+// Reveal will-based upgrades (cost in hope)
+willUpgrade.addEventListener('click', () => {
+  if (dead == true && hope >= 5){
+    hope -= 5;
+    willBlood.style.display = 'inline-block';
+	hopeMult.style.display = 'inline-block'
+	bloodproduce.style.display = 'inline-block'
+    willUpgrade.style.display = 'none';
+	
+	willShow = true
+    storyText.textContent = 'You can now spend Will during a run. (This will not affect hope gain)';
+    updateDisplays();
+  }
+});
+
+/* ---------- Initialization ---------- */
+// Make sure displays show initial values and the run is not active until user starts
+setInterval(saveGame, 5000)
+// loadGame()
+updateDisplays();
+// (optionally auto-start)
+startRun();
+</script>
+
+</body>
+</html>
+
