@@ -15,6 +15,8 @@
   ul{padding-left:18px;margin:8px 0}
   .small{font-size:.9rem}
 	.prestige{display:none}
+#brain-div { display: none; }
+#unblood-value { display: none; }
 </style>
 </head>
 <body>
@@ -22,6 +24,7 @@
   <div class="card">
     <h1>????</h1>
     <h2 id="blood-value" >Blood: 0.00</h2>
+	<h2 id="unblood-value" >Unoxygenated Blood: 0.00</h2>
     <h2 id="will-value">Will: 0.00</h2>
     <div id="counter-value"></div>
     <button id="increment-btn" >Stop bleeding (gain Will)</button>
@@ -62,6 +65,8 @@
 	<div id="brain-div">
 	<h2 id="thought-label">Thoughts: 0</h2>
 	<input type="checkbox" id="think-btn">Think</input>
+	<button id="explore-Btn">Unlock exploration:5 Thoughts</button>
+	<button id="see-blood">Unlock blood type:10 Thoughts</button>
 </div>
 	</div>
   <div class="card" style="flex:1">
@@ -72,6 +77,7 @@
 /* --- Elements --- */
 const firstScreen = document.getElementsByClassName('first')
 
+const unBloodValue = document.getElementById('unblood-value')
 const bloodValue = document.getElementById('blood-value');
 const willText = document.getElementById('will-value');
 const hopeValue = document.getElementById('hope-value');
@@ -99,6 +105,8 @@ const brainBtn = document.getElementById('brain-unlock')
 const brainDiv = document.getElementById('brain-div')
 const thinkBtn = document.getElementById('think-btn')
 const thoughtLabel = document.getElementById('thought-label')
+const exploreUnlock = document.getElementById('explore-btn')
+const bloodUnlock = document.getElementById('see-blood')
 
 const devMode = document.getElementById('dev-mode');
 
@@ -115,6 +123,8 @@ let bloodGainMult = 1;
 let will = 0;                 // displayed will you spend/use
 let trueWill = 0;             // will accumulated for converting to hope on death
 let hope = 0;                 // currency between runs
+
+unBlood = 0
 
 let willMultiply = 1;         // will gain multiplier
 let timerInterval = null;
@@ -189,6 +199,7 @@ function updateDisplays(){
   willText.textContent = `Will: ${will.toFixed(2)}`;
   hopeValue.textContent = `Hope: ${hope.toFixed(2)}`;
   willBlood.textContent = `Restores blood: ${willCreepedLabel()} Will`
+	thoughtLabel.textContent = `Thoughts: ${thought}`
 saveGame()
 }
 
@@ -230,8 +241,12 @@ function updateTimer(){
   if (dead) return;
   // decrement authoritative remainingTime
 	timeBefore = remainingTime
-  remainingTime = remainingTime - (decayPerTick * timeMult) + bloodProduct - thinkLoss;
-thought += 0.1
+  remainingTime = remainingTime - (decayPerTick * timeMult) + bloodProduct;
+if (thinking) {
+remainingTime -= thinkLoss * (tickMs/1000);
+thought += (Math.max(0, thought + 0.1) * (tickMs/1000)).toFixed(2);
+thoughtLabel.textContent = `Thoughts: ${thought.toFixed(2)}`
+}
   // clamp so it doesn't go wildly negative for display purposes
   if (remainingTime <= 0){
     remainingTime = 0;
@@ -344,18 +359,27 @@ btnGainBlood.textContent = `Increase blood gain: ${bloodMultCost.toFixed(2)} Hop
 willGain.textContent = `Increase will gain: ${willGainCost.toFixed(2)} Hope`
 
 bloodGain.textContent = `Increase starting blood: ${bloodGainCost.toFixed(2)} Hope`
+
+willUpgrade.style.display = 'inline-block'
 saveGame()
 startRun()
 })
 
+bloodUnlock.addEventListener('click',() => {
+if (thought >= 10) {
+thought -= 10
 
+}
+})
+exploreUnlock.addEvenetListener('click',() => {})
 thinkBtn.addEventListener('click',() => {
 if (thinking == false) {
 thinking = true
 thinkLoss = 1
-}
+} else {
 thinking = false
 thinkLoss = 0
+}
 })
 
 bloodproduce.addEventListener('click', () => {
@@ -519,4 +543,3 @@ startRun();
 
 </body>
 </html>
-
