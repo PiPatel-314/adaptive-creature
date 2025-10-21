@@ -364,14 +364,14 @@ function updateTimer(){
   // decrement authoritative remainingTime
 	timeBefore = remainingTime
   remainingTime = remainingTime - (decayPerTick * timeMult) + bloodProduct;
-bloodTotal = Math.max(remainingTime + unBlood, 0)
-//unBlood = (decayPerTick * timeMult) - bloodProduct + thinkLoss * (tickMs/1000)
-unBlood = bloodTotal - remainingTime
+
 if (thinking) {
 remainingTime -= thinkLoss * (tickMs/1000);
 thought = parseFloat((thought + 0.5 * (tickMs/1000)).toFixed(2));
 thoughtLabel.textContent = `Thoughts: ${thought.toFixed(2)}`
 }
+unBlood += (decayPerTick * timeMult) - bloodProduct + thinkLoss * (tickMs/1000)
+bloodTotal = Math.round(remainingTime + unBlood, 0)
 
 
 abilityTrigger()
@@ -412,11 +412,12 @@ function handleDeath(){
   willBloodCost = 1
 if (willShow == true) {
   hopeMult.style.display = "inline-block"
-  combatEngaged = false
 saveGame()
 }
 	bloodProductCost = 10
 bloodproduce.textContent = `Produce blood: ${bloodProductCost} Will`
+combatEngaged = false
+combatDiv.style.display = 'none'
   updateDisplays();
   
 }
@@ -524,6 +525,7 @@ if (monsterObject.health <= 0) {
 function playerWin(monsterObject) {
 storyText.textContent = `The ${monsterObject.name} crumples to the floor. You get ${monsterObject.reward} corpse YAAAAY.`
 combatEngaged = false
+combatDiv.style.display = 'none'
 }
 
 function battleStart() {
@@ -842,4 +844,6 @@ startRun();
 
 </body>
 </html>
+
+
 
