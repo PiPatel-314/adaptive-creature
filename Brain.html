@@ -449,8 +449,8 @@ function abilityTrigger() {
         ability.cooldownTimer = 0;
         storyText.textContent = `${ability.name} ready again.`;
 	ability.cooldownAsk = false
-      }
-      continue;
+      } else {
+	ability.progressDisplay.textContent = `Cooldown: ${ability.cooldownTimer.toFixed(2)} seconds left`}
     }
 
     // Drain blood gradually based on slider setting
@@ -485,13 +485,23 @@ const dt = tickMs / 1000;
   monsterArr.forEach(monster => {
     const drain = monster.rate * dt;
 	if (monster.cooldownTimer > 0) {
-      monster.cooldownTimer -= tickMs / 1000;
+      monster.cooldownTimer -= dt;
 	monster.cooldownAsk = true
       if (monster.cooldownTimer <= 0) {
         monster.cooldownTimer = 0;
 	monster.cooldownAsk = false
       }
-return;
+else {
+monster.cooldownAsk = true 
+};
+if (monster.attackDisplay) {
+if (monster.cooldownAsk == true) { 
+monster.attackDisplay.textContent = `Cooldown: ${monster.cooldownTimer.toFixed(2)} seconds left`
+}
+else {
+monster.attackDisplay.textContent = `${monster.progress.toFixed(2)}/${monster.cost.toFixed(2)}`
+}
+}
 }
 
 
@@ -501,16 +511,9 @@ return;
       monster.progress = 0;
       remainingTime -= monster.attack;
       bloodTotal -= monster.attack;
-	
+	monster.cooldownTimer = monster.cooldown
     }
-if (monster.attackDisplay) {
-if (monster.cooldownAsk == true) { 
-monster.attackDisplay.textContent = `Cooldown: ${monster.cooldownTimer} seconds left`
-}
-else {
-monster.attackDisplay.textContent = `${monster.progress.toFixed(2)}/${monster.cost.toFixed(2)}`
-}
-}
+
   });
 }
 
@@ -761,7 +764,7 @@ updateDisplays()
 /* ---------- Upgrades ---------- */
 // Increase will gain (cost in hope)
 willGain.addEventListener('click', () => {
-  if (hope >= willGainCost && dead == true && willGainLevel <= 10){
+  if (hope >= willGainCost && dead == true && willGainLevel < 10){
     hope -= willGainCost;
     willMultiply += 1;
     willGainCost *= willGainScale;
@@ -844,6 +847,4 @@ startRun();
 
 </body>
 </html>
-
-
 
