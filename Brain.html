@@ -21,9 +21,20 @@
 #ability-div { display: none; }
 #blood-total {display: none; }
 #combat-div {display: none; }
+.tabs { display:flex; gap:8px; margin-bottom:12px; }
+.tab-btn { padding:8px 12px; border-radius:6px; border:1px solid #ddd; background:#fff; cursor:pointer; }
+.tab-btn.active { background:#007BFF; color:#fff; border-color:#007BFF; }
+.tab-panel { display:block; } /* we toggle via inline style or JS */
 </style>
 </head>
 <body>
+<div class="tabs">
+  <button class="tab-btn active" data-tab="main">Main</button>
+  <button class="tab-btn" data-tab="abilities">Abilities</button>
+  <button class="tab-btn" data-tab="combat">Combat</button>
+  <button class="tab-btn" data-tab="story">Story</button>
+</div>
+<div id="panel-main" class="tab-panel">
 <div class="first">
   <div class="card">
     <h1>????</h1>
@@ -59,6 +70,37 @@
 	</li>
       </ul>
     </div>
+</div>
+<div id="panel-abilities" class="tab-panel" style="display:none">
+    <div class="card" style="flex:1" id="ability-div">
+<div style="flex:1" id="explore-div">
+<button id="explore-btn">Explore</button>
+<input id="explore-auto" type="range" min="0.0" max="5.0" value="0.0" class="slider"></input>
+<h3 id="explore-count">Blood automation: 0/second</h3>
+<h3 id="explore-value">0/1</h3>
+</div>
+<div style"flex:1" id="spray-div">
+<h3>Acid spray</h3>
+<input id="spray-auto" type="range" min="0" max="10" value="0" class="slider">
+<h3 id="spray-count">Blood automation: 0/second</h3>
+<h3 id="spray-value">0/2</h3>
+</div>
+ <div id="panel-combat" class="tab-panel" style="display:none">
+    <!-- move combat-specific UI here -->
+    <div id="combat-panel">
+      <h3 id="monster-name">Rat</h3>
+      <h3 id="monster-health">5/5</h3>
+      <h3 id="monster-attack">0/3</h3>
+      <!-- combat controls (attack button, flee) go here -->
+    </div>
+  </div>
+  <div id="panel-story" class="tab-panel" style="display:none">
+    <!-- story card area -->
+    <div class="card" style="flex:1">
+      <p id="story-text">You're bleeding out</p>
+    </div>
+  </div>
+</div>
   </div>
 </div>
 <div class="card prestige" id="prestige-div">
@@ -75,19 +117,6 @@
 	<button id="see-blood">Unlock blood type:10 Thoughts</button>
 </div>
 	</div>
-<div class="card" style="flex:1" id="ability-div">
-<div style="flex:1" id="explore-div">
-<button id="explore-btn">Explore</button>
-<input id="explore-auto" type="range" min="0.0" max="5.0" value="0.0" class="slider"></input>
-<h3 id="explore-count">Blood automation: 0/second</h3>
-<h3 id="explore-value">0/1</h3>
-</div>
-<div style"flex:1" id="spray-div">
-<h3>Acid spray</h3>
-<input id="spray-auto" type="range" min="0" max="10" value="0" class="slider">
-<h3 id="spray-count">Blood automation: 0/second</h3>
-<h3 id="spray-value">0/2</h3>
-</div>
 <div id="combat-div">
 <h3 id="monster-name">Rat</h3>
 <h3 id="monster-health">5/5</h3>
@@ -223,6 +252,7 @@ let sprayTime = 0
 let abilityCooldown = 0
 let combatEngaged = false
 let activeEnemy = 0
+let combatShown = false
 /* -----------Abilities----------*/
 const abilities = [
   {
@@ -491,6 +521,8 @@ function abilityTrigger() {
 
     if (ability.autoDisplay) ability.autoDisplay.textContent = `Blood automation: ${rate.toFixed(2)}/s`;
   }
+
+ if (combatShown) updateCombatUI()
 }
 
 function monsterAbility() {
@@ -537,7 +569,7 @@ if (monster.attackDisplay) monster.attackDisplay.textContent = `Cooldown: ${mons
       monster.attackDisplay.textContent = `${monster.progress.toFixed(2)}/${monster.cost.toFixed(2)}`;
     
     }
-
+	 if (combatShown) updateCombatUI()
   });
 }
 
@@ -565,6 +597,17 @@ combatDiv.style.display = 'inline-block'
 
 function monsterSelect() {
 activeEnemy = 0
+}
+
+function updateCombatUI() {
+  monsterArr.forEach(monster => {
+    if (monster.nameDisplay) monster.nameDisplay.textContent = monster.name;
+    if (monster.healthDisplay) monster.healthDisplay.textContent = `${monster.health}/${monster.maxHealth}`;
+    if (monster.attackDisplay) {
+      if (monster.cooldownTimer > 0) monster.attackDisplay.textContent = `Cooldown: ${monster.cooldownTimer.toFixed(1)}s`;
+      else monster.attackDisplay.textContent = `${monster.progress.toFixed(2)}/${monster.cost.toFixed(2)}`;
+    }
+  });
 }
 
 
@@ -859,6 +902,72 @@ function initAbilities() {
     }
   }
 }
+const panelIds = {
+  main: 'panel-main',
+  abilities: 'panel-abilities',
+  combat: 'panel-combat',
+  story: 'panel-story'
+};
+
+// optional per-panel onShow hooks
+const onShow = {
+  combat: () => {
+    // refresh combat UI when user opens combat tab
+    combatDiv.style.display = 'inline-block'; // if you still control visibility via this
+    // force immediate UI update for monster stats
+    monsterArr.forEach(m => {
+      if (m.nameDisplay) m.nameDisplay.textContent = m.name;
+      if (m.healthDisplay) m.healthDisplay.textContent = `${m.health}/${m.maxHealth}`;
+      if (m.attackDisplay) m.attackDisplay.textContent = `${m.progress.toFixed(2)}/${m.cost.toFixed(2)}`;
+    });
+  },
+  abilities: () => {
+    // refresh ability displays if you want
+    abilities.forEach(a => {
+      if (a.progressDisplay) a.progressDisplay.textContent = `${a.progress.toFixed(2)}/${a.cost.toFixed(2)}`;
+      if (a.autoDisplay && a.sliderElem) a.autoDisplay.textContent = `Blood automation: ${parseFloat(a.sliderElem.value).toFixed(2)}/s`;
+    });
+  }
+};
+
+function showTab(name) {
+  // hide all panels
+  Object.values(panelIds).forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.style.display = 'none';
+  });
+
+  // remove active class from all tab buttons
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+
+  // show requested panel
+  const panel = document.getElementById(panelIds[name]);
+  if (panel) panel.style.display = 'block';
+
+  // mark button active
+  const btn = document.querySelector(`.tab-btn[data-tab="${name}"]`);
+  if (btn) btn.classList.add('active');
+
+  // run optional refresh callback
+  if (onShow[name]) onShow[name]();
+	if (name == "combat") {
+updateCombatUI()
+combatShown = true
+} else {
+combatShown = false
+}
+}
+
+// wire tab buttons
+document.querySelectorAll('.tab-btn').forEach(btn => {
+  btn.addEventListener('click', () => showTab(btn.dataset.tab));
+});
+
+// optionally show the default tab
+showTab('main');
+
+
+
 initAbilities()
 // Make sure displays show initial values and the run is not active until user starts
 
