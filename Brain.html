@@ -438,44 +438,59 @@ function abilityTrigger() {
   if (dead) return;
 
   for (const ability of abilities) {
-    // Skip abilities without active sliders
-    if (!ability.active || !ability.sliderElem) continue;
+    // Ensure slider exists
+    if (!ability.sliderElem) continue;
+    const rate = parseFloat(ability.sliderElem.value) || 0;
 
-    const rate = parseFloat(ability.sliderElem.value);
+    // If ability is on cooldown -> decrement timer and update display, then skip charging
     if (ability.cooldownTimer > 0) {
-	ability.cooldownAsk = true
       ability.cooldownTimer -= tickMs / 1000;
       if (ability.cooldownTimer <= 0) {
         ability.cooldownTimer = 0;
-        storyText.textContent = `${ability.name} ready again.`;
-	ability.cooldownAsk = false
+        ability.cooldownAsk = false;
       } else {
-	ability.progressDisplay.textContent = `Cooldown: ${ability.cooldownTimer.toFixed(2)} seconds left`}
+        ability.cooldownAsk = true;
+        ability.progressDisplay.textContent = `${ability.name} cooldown: ${ability.cooldownTimer.toFixed(1)}s`;
+      }
+      if (ability.progressDisplay) {
+        ability.progressDisplay.textContent = `Cooldown: ${ability.cooldownTimer.toFixed(1)}s`;
+        if (ability.autoDisplay) ability.autoDisplay.textContent = `Blood automation: ${rate.toFixed(2)}/s`;
+      }
+      continue; // don't charge while cooling down
     }
 
-    // Drain blood gradually based on slider setting
+    // If slider is zero/inactive, show current progress but do not drain
+    if (rate <= 0) {
+      ability.active = false;
+      if (ability.progressDisplay) {
+        ability.progressDisplay.textContent = `${ability.progress.toFixed(2)}/${ability.cost.toFixed(2)}`;
+        if (ability.autoDisplay) ability.autoDisplay.textContent = `Blood automation: ${rate.toFixed(2)}/s`;
+      }
+      continue;
+    }
+
+    // Active and not on cooldown: drain blood and charge ability
+    ability.active = true;
     const drain = rate * (tickMs / 1000);
-    if (remainingTime > 0) {
-      remainingTime -= drain;
-      ability.progress += drain;
+	const oxygenDrain = Math.min(remainingTime, drain);
+    if (oxygenDrain > 0) {
+      remainingTime -= oxygenDrain;
+	unBlood += oxygenDrain;
+      ability.progress += oxygenDrain;
     }
 
-    // Check if fully charged
+    // Fired
     if (ability.progress >= ability.cost) {
       ability.effect();
       ability.progress = 0;
       ability.cooldownTimer = ability.cooldown;
-      updateDisplays()
+      if (ability.progressDisplay) ability.progressDisplay.textContent = `Cooldown: ${ability.cooldownTimer.toFixed(1)}s`;
+    } else {
+      if (ability.progressDisplay) ability.progressDisplay.textContent = `${ability.progress.toFixed(2)}/${ability.cost.toFixed(2)}`;
     }
-if (ability.progressDisplay) {
-if (ability.cooldownAsk == true) {
- ability.progressDisplay.textContent = `Cooldown: ${ability.cooldownTimer} seconds left`
-} else {
-ability.progressDisplay.textContent = `${ability.progress.toFixed(2)}/${ability.cost.toFixed(2)}`
-}
-	ability.autoDisplay.textContent = `Blood automation: ${rate.toFixed(2)}/second`
+
+    if (ability.autoDisplay) ability.autoDisplay.textContent = `Blood automation: ${rate.toFixed(2)}/s`;
   }
-}
 }
 
 function monsterAbility() {
@@ -486,7 +501,6 @@ const dt = tickMs / 1000;
     const drain = monster.rate * dt;
 	if (monster.cooldownTimer > 0) {
       monster.cooldownTimer -= dt;
-	monster.cooldownAsk = true
       if (monster.cooldownTimer <= 0) {
         monster.cooldownTimer = 0;
 	monster.cooldownAsk = false
@@ -499,9 +513,10 @@ if (monster.cooldownAsk == true) {
 monster.attackDisplay.textContent = `Cooldown: ${monster.cooldownTimer.toFixed(2)} seconds left`
 }
 else {
-monster.attackDisplay.textContent = `${monster.progress.toFixed(2)}/${monster.cost.toFixed(2)}`
+monster.attackDisplay.textContent = `${monster.progress.toFixed(1)}/${monster.cost.toFixed(2)}`
 }
 }
+return
 }
 
 
@@ -512,6 +527,15 @@ monster.attackDisplay.textContent = `${monster.progress.toFixed(2)}/${monster.co
       remainingTime -= monster.attack;
       bloodTotal -= monster.attack;
 	monster.cooldownTimer = monster.cooldown
+	monster.cooldownAsk = true
+if (monster.attackDisplay) monster.attackDisplay.textContent = `Cooldown: ${monster.cooldownTimer.toFixed(1)}s`;
+      return;
+    }
+
+    // Update progress display while charging
+    if (monster.attackDisplay) {
+      monster.attackDisplay.textContent = `${monster.progress.toFixed(2)}/${monster.cost.toFixed(2)}`;
+    
     }
 
   });
@@ -847,4 +871,3 @@ startRun();
 
 </body>
 </html>
-
