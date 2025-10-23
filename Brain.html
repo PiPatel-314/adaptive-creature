@@ -34,99 +34,89 @@
   <button class="tab-btn" data-tab="combat">Combat</button>
   <button class="tab-btn" data-tab="story">Story</button>
 </div>
-<div id="panel-main" class="tab-panel">
-<div class="first">
-  <div class="card">
-    <h1>????</h1>
-    <h2 id="blood-value" >Blood: 0.00</h2>
-	<h2 id="unblood-value" >Unoxygenated Blood: 0.00</h2>
-	<h2  id="blood-total">Blood total: 0</h2>
-    <h2 id="will-value">Will: 0.00</h2>
-    <div id="counter-value"></div>
-    <button id="increment-btn" >Stop bleeding (gain Will)</button>
-    <button id="purchase-btn" >Revive / Start</button>
-  </div>
 
+<!-- Main Panel -->
+<div id="panel-main" class="tab-panel" style="display:block">
+  <div class="first">
+    <div class="card">
+      <h1>????</h1>
+      <h2 id="blood-value">Blood: 0.00</h2>
+      <h2 id="unblood-value">Unoxygenated Blood: 0.00</h2>
+      <h2 id="blood-total">Blood total: 0</h2>
+      <h2 id="will-value">Will: 0.00</h2>
+      <div id="counter-value"></div>
+      <button id="increment-btn">Stop bleeding (gain Will)</button>
+      <button id="purchase-btn">Revive / Start</button>
+    </div>
+
+    <div class="card">
+      <button id="will-blood" class="will">Restores blood: 1 Will</button>
+      <button id="hope-mult" class="will">Doubles this run’s hope gain: 5 Will</button>
+      <button id="blood-produce" class="will">Produce blood: 10 Will</button>
+      <div style="margin-top:12px">
+        <ul>
+          <li><h2 id="hope-value" class="small">Hope: 0.00</h2></li>
+          <li><button id="will-gain" class="small">Increase will gain: 0.10 Hope</button></li>
+          <li><button id="blood-gain" class="small">Increase starting blood: 1 Hope</button></li>
+          <li><button id="will-upgrade" class="small">Discover will upgrades: 5 Hope</button></li>
+          <li><button id="blood-drain" class="small">Reduce blood drain: 10 Hope</button></li>
+          <li><button id="btn-blood-gain" class="small">Increase blood gain: 20 Hope</button></li>
+          <li><input type="text" id="dev-mode"></li>
+        </ul>
+      </div>
+
+      <div class="card prestige" id="prestige-div">
+        <button id="evolve">Evolve</button>
+        <div id="prestigeTwo">
+          <h2 id="mutagen-label">Mutagen: 0</h2>
+          <button id="brain-unlock">Unlock the mind</button>
+        </div>
+
+        <div id="brain-div">
+          <h2 id="thought-label">Thoughts: 0</h2>
+          <input type="checkbox" id="think-btn">Think</input>
+          <button id="explore-Btn">Unlock exploration: 5 Thoughts</button>
+          <button id="see-blood">Unlock blood type: 10 Thoughts</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Abilities Panel -->
+<div id="panel-abilities" class="tab-panel">
+  <div class="card" id="ability-div">
+    <div id="explore-div">
+      <button id="explore-btn">Explore</button>
+      <input id="explore-auto" type="range" min="0.0" max="5.0" value="0.0" class="slider"></input>
+      <h3 id="explore-count">Blood automation: 0/second</h3>
+      <h3 id="explore-value">0/1</h3>
+    </div>
+
+    <div id="spray-div">
+      <h3>Acid spray</h3>
+      <input id="spray-auto" type="range" min="0" max="10" value="0" class="slider">
+      <h3 id="spray-count">Blood automation: 0/second</h3>
+      <h3 id="spray-value">0/2</h3>
+    </div>
+  </div>
+</div>
+
+<!-- Combat Panel -->
+<div id="panel-combat" class="tab-panel">
+  <div id="combat-panel" class="card">
+    <h3 id="monster-name">Rat</h3>
+    <h3 id="monster-health">5/5</h3>
+    <h3 id="monster-attack">0/3</h3>
+  </div>
+</div>
+
+<!-- Story Panel -->
+<div id="panel-story" class="tab-panel">
   <div class="card">
-    <button id="will-blood" class="will">Restores blood: 1 Will</button>
-    <button id="hope-mult" class="will">Doubles this runs hope gain: 5 Will</button>
-	<button id="blood-produce" class="will">Produce blood: 10 Will</button>
-    <div style="margin-top:12px">
-      <ul>
-        <li><h2 id="hope-value" class="small">Hope: 0.00</h2></li>
-        <li><button id="will-gain" class="small">Increase will gain: 0.10 Hope</button></li>
-        <li><button id="blood-gain" class="small">Increase starting blood: 1 Hope</button></li>
-        <li><button id="will-upgrade" class="small">Discover will upgrades: 5 Hope</button></li>
-	<li>
-	<button id="blood-drain" class="small">Reduce blood drain: 10 Hope</button>
-		</li>
-	<li>
-	<button id="btn-blood-gain" class="small">Increase blood gain: 20 Hope</button>
-	</li>
-	<li>
-	<input
-	type="text"
-	id="dev-mode"></input>
-	</li>
-      </ul>
-    </div>
-</div>
-<div id="panel-abilities" class="tab-panel" style="display:none">
-    <div class="card" style="flex:1" id="ability-div">
-<div style="flex:1" id="explore-div">
-<button id="explore-btn">Explore</button>
-<input id="explore-auto" type="range" min="0.0" max="5.0" value="0.0" class="slider"></input>
-<h3 id="explore-count">Blood automation: 0/second</h3>
-<h3 id="explore-value">0/1</h3>
-</div>
-<div style"flex:1" id="spray-div">
-<h3>Acid spray</h3>
-<input id="spray-auto" type="range" min="0" max="10" value="0" class="slider">
-<h3 id="spray-count">Blood automation: 0/second</h3>
-<h3 id="spray-value">0/2</h3>
-</div>
- <div id="panel-combat" class="tab-panel" style="display:none">
-    <!-- move combat-specific UI here -->
-    <div id="combat-panel">
-      <h3 id="monster-name">Rat</h3>
-      <h3 id="monster-health">5/5</h3>
-      <h3 id="monster-attack">0/3</h3>
-      <!-- combat controls (attack button, flee) go here -->
-    </div>
-  </div>
-  <div id="panel-story" class="tab-panel" style="display:none">
-    <!-- story card area -->
-    <div class="card" style="flex:1">
-      <p id="story-text">You're bleeding out</p>
-    </div>
-  </div>
-</div>
-  </div>
-</div>
-<div class="card prestige" id="prestige-div">
-	<button id="evolve">Evolve</button>
-	<div id="prestigeTwo">
-	<h2 id="mutagen-label">Mutagen: 0</h2>
-	<button id="brain-unlock">Unlock the mind: 1 Mutagen</button>
-		</div>
-	<div id="brain-div">
-	<h2 id="thought-label">Thoughts: 0</h2>
-	<input type="checkbox" id="think-btn">Think</input>
-	<button id="blood-product-mult">Doubles blood production: 2 Thoughts</button>
-	<button id="explore-Btn">Unlock exploration:5 Thoughts</button>
-	<button id="see-blood">Unlock blood type:10 Thoughts</button>
-</div>
-	</div>
-<div id="combat-div">
-<h3 id="monster-name">Rat</h3>
-<h3 id="monster-health">5/5</h3>
-<h3 id="monster-attack">0/3</h3>
-</div>
-</div>
-  <div class="card" style="flex:1">
     <p id="story-text">You're bleeding out</p>
   </div>
-
+</div>
 <script>
 /* --- Elements --- */
 const firstScreen = document.getElementsByClassName('first')
@@ -173,7 +163,7 @@ const sprayValue = document.getElementById('spray-value')
 const sprayCount = document.getElementById('spray-count')
 const exploreCount = document.getElementById('explore-count')
 
-const combatDiv = document.getElementById('combat-div')
+const combatDiv = document.getElementById('panel-combat')
 const monsterName = document.getElementById('monster-name')
 const monsterAttack = document.getElementById('monster-attack')
 const monsterHealthLabel = document.getElementById('monster-health')
@@ -295,6 +285,14 @@ battleStart()
   }
 ];
 
+const panelIds = {
+  main: 'panel-main',
+  abilities: 'panel-abilities',
+  combat: 'panel-combat',
+  story: 'panel-story'
+};
+
+
 /*-----------Monsters------------*/
 //Note to self this is a terrible idea
 const monsterArr = [{
@@ -397,7 +395,7 @@ function updateTimer(){
 
 if (thinking) {
 remainingTime -= thinkLoss * (tickMs/1000);
-thought = parseFloat((thought + 0.5 * (tickMs/1000)).toFixed(2));
+thought = parseFloat((thought + 0.5 * (tickMs/1000)).toFixed(02));
 thoughtLabel.textContent = `Thoughts: ${thought.toFixed(2)}`
 }
 unBlood += (decayPerTick * timeMult) - bloodProduct + thinkLoss * (tickMs/1000)
@@ -516,7 +514,7 @@ function abilityTrigger() {
       ability.cooldownTimer = ability.cooldown;
       if (ability.progressDisplay) ability.progressDisplay.textContent = `Cooldown: ${ability.cooldownTimer.toFixed(1)}s`;
     } else {
-      if (ability.progressDisplay) ability.progressDisplay.textContent = `${ability.progress.toFixed(2)}/${ability.cost.toFixed(2)}`;
+      if (ability.progressDisplay) ability.progressDisplay.textContent = `${ability.progress.toFixed(2)}/${ability.cost.toFixed(02)}`;
     }
 
     if (ability.autoDisplay) ability.autoDisplay.textContent = `Blood automation: ${rate.toFixed(2)}/s`;
@@ -542,10 +540,10 @@ monster.cooldownAsk = true
 };
 if (monster.attackDisplay) {
 if (monster.cooldownAsk == true) { 
-monster.attackDisplay.textContent = `Cooldown: ${monster.cooldownTimer.toFixed(2)} seconds left`
+monster.attackDisplay.textContent = `Cooldown: ${monster.cooldownTimer.toFixed(02)} seconds left`
 }
 else {
-monster.attackDisplay.textContent = `${monster.progress.toFixed(1)}/${monster.cost.toFixed(2)}`
+monster.attackDisplay.textContent = `${monster.progress.toFixed(1)}/${monster.cost.toFixed(02)}`
 }
 }
 return
@@ -566,7 +564,7 @@ if (monster.attackDisplay) monster.attackDisplay.textContent = `Cooldown: ${mons
 
     // Update progress display while charging
     if (monster.attackDisplay) {
-      monster.attackDisplay.textContent = `${monster.progress.toFixed(2)}/${monster.cost.toFixed(2)}`;
+      monster.attackDisplay.textContent = `${monster.progress.toFixed(2)}/${monster.cost.toFixed(02)}`;
     
     }
 	 if (combatShown) updateCombatUI()
@@ -605,7 +603,7 @@ function updateCombatUI() {
     if (monster.healthDisplay) monster.healthDisplay.textContent = `${monster.health}/${monster.maxHealth}`;
     if (monster.attackDisplay) {
       if (monster.cooldownTimer > 0) monster.attackDisplay.textContent = `Cooldown: ${monster.cooldownTimer.toFixed(1)}s`;
-      else monster.attackDisplay.textContent = `${monster.progress.toFixed(2)}/${monster.cost.toFixed(2)}`;
+      else monster.attackDisplay.textContent = `${monster.progress.toFixed(2)}/${monster.cost.toFixed(02)}`;
     }
   });
 }
@@ -791,7 +789,7 @@ willBlood.addEventListener('click', () => {
   if (will >= willBloodCost && willBloodLevel < 10){
     will -= willBloodCost;
     // scale cost for next use
-    willBloodCost = parseFloat((willBloodCost + willBloodScale).toFixed(2));
+    willBloodCost = parseFloat((willBloodCost + willBloodScale).toFixed(02));
     // Add persistent seconds directly to remainingTime (this works because remainingTime is authoritative)
     remainingTime += (1 * bloodGainMult);
 	unBlood -= (1 * bloodGainMult)
@@ -808,7 +806,7 @@ if (willBloodLevel == 10) {
 
 // helper label for willBlood button
 function willCreepedLabel(){
-  return willBloodCost.toFixed(2);
+  return willBloodCost.toFixed(02);
 }
 exploreBtn.addEventListener('click', () => {
 remainingTime -= 1
@@ -839,7 +837,7 @@ willGain.addEventListener('click', () => {
 	if (willGainLevel == 10) {
     willGain.textContent = 'Maxed'
 } else {
-    willGain.textContent = `Increase will gain: ${willGainCost.toFixed(2)} Hope`;
+    willGain.textContent = `Increase will gain: ${willGainCost.toFixed(02)} Hope`;
 }
     updateDisplays();
   }
@@ -856,7 +854,7 @@ bloodGain.addEventListener('click', () => {
 	bloodGain.textContent = 'Maxed'
 }
  else {
-    bloodGain.textContent = `Increase starting blood: ${bloodGainCost.toFixed(2)} Hope`;
+    bloodGain.textContent = `Increase starting blood: ${bloodGainCost.toFixed(02)} Hope`;
 }
     updateDisplays();
   }
@@ -902,13 +900,6 @@ function initAbilities() {
     }
   }
 }
-const panelIds = {
-  main: 'panel-main',
-  abilities: 'panel-abilities',
-  combat: 'panel-combat',
-  story: 'panel-story'
-};
-
 // optional per-panel onShow hooks
 const onShow = {
   combat: () => {
@@ -918,14 +909,14 @@ const onShow = {
     monsterArr.forEach(m => {
       if (m.nameDisplay) m.nameDisplay.textContent = m.name;
       if (m.healthDisplay) m.healthDisplay.textContent = `${m.health}/${m.maxHealth}`;
-      if (m.attackDisplay) m.attackDisplay.textContent = `${m.progress.toFixed(2)}/${m.cost.toFixed(2)}`;
+      if (m.attackDisplay) m.attackDisplay.textContent = `${m.progress.toFixed(02)}/${m.cost.toFixed(02)}`;
     });
   },
   abilities: () => {
     // refresh ability displays if you want
     abilities.forEach(a => {
-      if (a.progressDisplay) a.progressDisplay.textContent = `${a.progress.toFixed(2)}/${a.cost.toFixed(2)}`;
-      if (a.autoDisplay && a.sliderElem) a.autoDisplay.textContent = `Blood automation: ${parseFloat(a.sliderElem.value).toFixed(2)}/s`;
+      if (a.progressDisplay) a.progressDisplay.textContent = `${a.progress.toFixed(02)}/${a.cost.toFixed(02)}`;
+      if (a.autoDisplay && a.sliderElem) a.autoDisplay.textContent = `Blood automation: ${parseFloat(a.sliderElem.value).toFixed(02)}/s`;
     });
   }
 };
@@ -940,9 +931,14 @@ function showTab(name) {
   // remove active class from all tab buttons
   document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
 
-  // show requested panel
+  // show requested panel (and make any ancestor tab-panel visible)
   const panel = document.getElementById(panelIds[name]);
-  if (panel) panel.style.display = 'block';
+  if (panel) {
+    panel.style.display = 'block';
+
+    // ensure any ancestor tab-panel containers are also shown (fixes accidental nesting)
+   
+  }
 
   // mark button active
   const btn = document.querySelector(`.tab-btn[data-tab="${name}"]`);
@@ -950,17 +946,26 @@ function showTab(name) {
 
   // run optional refresh callback
   if (onShow[name]) onShow[name]();
-	if (name == "combat") {
-updateCombatUI()
-combatShown = true
-} else {
-combatShown = false
+
+  if (name === "combat") {
+    updateCombatUI();
+    combatShown = true;
+    if (combatEngaged == false) {
+      combatDiv.style.display = 'none';
+    }
+  } else {
+    combatShown = false;
+  }
 }
-}
+
+
+
 
 // wire tab buttons
 document.querySelectorAll('.tab-btn').forEach(btn => {
-  btn.addEventListener('click', () => showTab(btn.dataset.tab));
+  btn.addEventListener('click', () => {
+console.log("Story tab clicked:", btn.dataset.tab);
+showTab(btn.dataset.tab)});
 });
 
 // optionally show the default tab
