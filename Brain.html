@@ -157,8 +157,25 @@
 </div>
 <div id="panel-body" class="tab-panel">
 <div class="card">
-<p>Heart: regular stats</p>
-<p>Large heart:Blood capacity X 2 blood production X 0.5</p>
+<h3 id="tissue-counter">Tissue: 0If your reading its not updating</h3>
+</div>
+<div class="card">
+<ul>
+<li><input name="heart" type="radio" id="heart-regular" checked>Heart: regular stats</input></li>
+<li><input name="heart" type="radio" id="heart-large">Large heart: Blood capacity X 2 blood production X 0.5</input></li>
+</ul>
+</div>
+<div class="card">
+<ul>
+<li><input name="brain" type="radio" id="brain-regular" checked>Brain: regular stats</input></li>
+<li><input name="brain" type="radio" id="brain-large">Large brain: Thought upgrades / 10                    Blood loss from thinking X 2</input></li>
+</ul>
+</div>
+<div class="card">
+<ul>
+<li><input name="eye" type="radio" id="eye-regular">Eyes: unlock the map</input></li>
+<li><input name="eye" type="radio" id="eye-hexagonal">Hexagonal eyes: unlock new drops for exploring</input></li>
+</ul>
 </div>
 </div>
 <script>
@@ -223,6 +240,11 @@ const thoughtProduct = document.getElementById('thought-product')
 const evolutionUnlock = document.getElementById('evolution-unlock')
 
 const devMode = document.getElementById('dev-mode');
+
+const heartLarge = document.getElementById('heart-large')
+const heartRegular = document.getElementById('heart-regular')
+
+const tissueCounter = document.getElementById('tissue-counter')
 
 
 /* --- Game state --- */
@@ -299,6 +321,12 @@ let abilityCooldown = 0
 let combatEngaged = false
 let activeEnemy = 0
 let combatShown = false
+
+
+let heartSize = 1
+let heartBloodMult = 1
+let areaExplored = 0
+let tissue = 0
 /* -----------Abilities----------*/
 const abilities = [
   {
@@ -341,6 +369,7 @@ damageEnemy(activeEnemy,1)
       if (randomNumber <= 50) {
 battleStart()
 };
+areaExplored += 1
     }
   },
 {
@@ -455,14 +484,16 @@ function saveGame() {
 function startRun(){
   // initialize run values
   dead = false;
-  remainingTime = Startblood + 0; // fresh start; bloodBonus starts at 0
+  Startblood *= heartSize
+  remainingTime = (Startblood + 0); // fresh start; bloodBonus starts at 0
   bloodBonus = 0;
   will = 0;
   trueWill = 0;
-  bloodTotal = Startblood
+  bloodTotal = Startblood * heartSize
   storyText.textContent = "You're bleeding out";
   clearInterval(timerInterval);
   timerInterval = setInterval(updateTimer, tickMs);
+  Startblood /= heartSize
   updateDisplays();
 }
 
@@ -470,14 +501,14 @@ function updateTimer(){
   if (dead) return;
   // decrement authoritative remainingTime
 	timeBefore = remainingTime
-  remainingTime = remainingTime - (decayPerTick * timeMult) + (bloodProduct * thoughtBloodMult);
+  remainingTime = remainingTime - (decayPerTick * timeMult) + ((bloodProduct * thoughtBloodMult) * heartBloodMult);
 
 if (thinking) {
 remainingTime -= thinkLoss * (tickMs/1000);
 thought = parseFloat((thought + 0.5 * (tickMs/1000)).toFixed(2));
 thoughtLabel.textContent = `Thoughts: ${thought.toFixed(2)}`
 }
-unBlood += (decayPerTick * timeMult) - (thoughtBloodMult * bloodProduct) + thinkLoss * (tickMs/1000)
+unBlood += (decayPerTick * timeMult) - ((thoughtBloodMult * bloodProduct) * heartBloodMult) + thinkLoss * (tickMs/1000)
 bloodTotal = Math.round(remainingTime + unBlood, 0)
 
 
@@ -490,7 +521,7 @@ monsterAbility()
   if (remainingTime <= 0) {
     remainingTime = 0;
     handleDeath();
-  } else if (remainingTime > Startblood && evolved == false) {
+  } else if (remainingTime > bloodTotal && evolved == false) {
 	evolved = true
 	prestigeTrigger()	
 } 
@@ -517,6 +548,8 @@ function handleDeath(){
   trueWill = 0;
   unBlood = 0
   willBloodCost = 1
+  tissue += Math.floor(areaExplored / 5)
+  tissueCounter.textContent =  `${tissue} Tissue`
 if (willShow == true) {
   hopeMult.style.display = "inline-block"
 saveGame()
@@ -668,6 +701,7 @@ combatDiv.style.display = 'none'
 function battleStart() {
 monsterSelect()
 let monsterObject = monsterArr[activeEnemy]
+monsterArr[activeEnemy].health = mosterArr[activeEnemy].maxHealth
 storyText.textContent = `a ${monsterObject.name} aproaches`
 combatEngaged = true
 combatDiv.style.display = 'inline-block'
@@ -980,6 +1014,18 @@ willUpgrade.addEventListener('click', () => {
     updateDisplays();
   }
 });
+
+
+/*-----------Body parts-----------*/
+heartRegular.addEventListener('input',() => {
+heartSize = 1
+heartBloodMult = 1
+})
+
+heartLarge.addEventListener('input', () => {
+heartSize = 2
+heartBloodMult = 0.75
+})
 
 /* ---------- Initialization ---------- */
 function initAbilities() {
