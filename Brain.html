@@ -23,6 +23,7 @@
   box-sizing: border-box;
 }
 .prestige{display:none}
+.hidden-organ{display:none}
 #brain-div { display: none; }
 #unblood-value { display: none; }
 #explore-div { display: none; }
@@ -117,6 +118,16 @@
 
 <!-- Abilities Panel -->
 <div id="panel-abilities" class="tab-panel">
+<div class="card">
+<h3 id="tissue-counter">Tissue: 0</h3>
+</div>
+<div id="abilitie-upgrade-div">
+<ul>
+<li><button id="acid-attack">Increase acid sprays attack: 5 tissue </button> </li>
+<li><button id="acid-speed">Increase acid sprays speed: 10 tissue</button></li>
+<li><button id="acid-cooldown">Reduce acid sprays cooldown: 5 tissue</button></li>
+</ul>
+</div>
  </div>
 
 <!-- Combat Panel -->
@@ -141,6 +152,13 @@
 	<h3 id="crit-count">Blood automation: 0/second</h3>
 	<h3 id="crit-value">0/3</h3>
   </div>
+	<div id="heal-div">
+	<h3>Find weak points</h3>
+	<input id="heal-auto" type="range" min="0" max="10" value="0" class="slider"></input>
+	<h3 id="heal-count">Blood automation: 0/second</h3>
+	<h3 id="heal-value">0/3</h3>
+  </div>
+
 
   <div id="combat-panel" class="card">
     <h3 id="monster-name">Rat</h3>
@@ -157,24 +175,24 @@
 </div>
 <div id="panel-body" class="tab-panel">
 <div class="card">
-<h3 id="tissue-counter">Tissue: 0If your reading its not updating</h3>
+<h3>DNA: 0</h3>
 </div>
 <div class="card">
 <ul>
 <li><input name="heart" type="radio" id="heart-regular" checked>Heart: regular stats</input></li>
-<li><input name="heart" type="radio" id="heart-large">Large heart: Blood capacity X 2 blood production X 0.5</input></li>
+<li><input name="heart" type="radio" id="heart-large" class="hidden-organ">Large heart: Blood capacity X 2 blood production X 0.5</input></li>
 </ul>
 </div>
 <div class="card">
 <ul>
 <li><input name="brain" type="radio" id="brain-regular" checked>Brain: regular stats</input></li>
-<li><input name="brain" type="radio" id="brain-large">Large brain: Thought upgrades / 10                    Blood loss from thinking X 2</input></li>
+<li><input name="brain" type="radio" id="brain-large" class="hidden-organ">Large brain: Thought upgrades / 10                    Blood loss from thinking X 2</input></li>
 </ul>
 </div>
 <div class="card">
 <ul>
-<li><input name="eye" type="radio" id="eye-regular">Eyes: unlock the map</input></li>
-<li><input name="eye" type="radio" id="eye-hexagonal">Hexagonal eyes: unlock new drops for exploring</input></li>
+<li><input name="eye" type="radio" id="eye-regular" class="hidden-organ">Eyes: unlock the map</input></li>
+<li><input name="eye" type="radio" id="eye-hexagonal" class="hidden-organ">Hexagonal eyes: unlock new drops for exploring</input></li>
 </ul>
 </div>
 </div>
@@ -219,15 +237,23 @@ const exploreDiv = document.getElementById('explore-div')
 const abilityDiv = document.getElementById('ability-div')
 const exploreBtn = document.getElementById('explore-btn')
 const exploreAuto = document.getElementById('explore-auto')
-const sprayAuto = document.getElementById('spray-auto')
+const exploreCount = document.getElementById('explore-count')
 const exploreValue = document.getElementById('explore-value')
+
 const sprayValue = document.getElementById('spray-value')
 const sprayCount = document.getElementById('spray-count')
 const sprayDiv = document.getElementById('spray-div')
-const exploreCount = document.getElementById('explore-count')
+const sprayAuto = document.getElementById('spray-auto')
+
+
 const critCount = document.getElementById('crit-count')
 const critValue = document.getElementById('crit-value')
 const critDiv = document.getElementById('crit-div')
+
+const healCount = document.getElementById('heal-count')
+const healValue = document.getElementById('heal-value')
+const healDiv = document.getElementById('heal-div')
+
 
 const combatDiv = document.getElementById('combat-panel')
 const monsterName = document.getElementById('monster-name')
@@ -245,6 +271,10 @@ const heartLarge = document.getElementById('heart-large')
 const heartRegular = document.getElementById('heart-regular')
 
 const tissueCounter = document.getElementById('tissue-counter')
+
+const sprayAttack = document.getElementById('acid-attack')
+const spraySpeed = document.getElementById('acid-speed')
+const sprayCooldown = document.getElementById('acid-cooldown')
 
 
 /* --- Game state --- */
@@ -327,6 +357,11 @@ let heartSize = 1
 let heartBloodMult = 1
 let areaExplored = 0
 let tissue = 0
+let dna = 0
+
+let sprayAttackMult = 1
+let spraySpeedMult = 1
+let sprayCooldownMult = 1
 /* -----------Abilities----------*/
 const abilities = [
   {
@@ -346,7 +381,7 @@ const abilities = [
 	unlocked: false,
     effect: () => {
 if (combatEngaged == true) {
-damageEnemy(activeEnemy,1)
+damageEnemy(activeEnemy,(1 * sprayAttackMult))
 }
     }
   },
@@ -388,6 +423,25 @@ active: false,
 unlocked: false,
 effect: () => {
 
+}
+},
+
+{
+id: "basicHeal",
+name: "Recover",
+cost: 5,
+cooldown: 3,
+sliderId: "heal-auto",
+sliderElem: null,
+progress: 0,
+progressDisplay: healValue,
+autoDisplay: healCount,
+abilityDiv: healDiv,
+cooldownTimer: 0,
+active: false,
+unlocked: false,
+effect: () => {
+healPlayer(2)
 },
 }
 ];
@@ -548,8 +602,6 @@ function handleDeath(){
   trueWill = 0;
   unBlood = 0
   willBloodCost = 1
-  tissue += Math.floor(areaExplored / 5)
-  tissueCounter.textContent =  `${tissue} Tissue`
 if (willShow == true) {
   hopeMult.style.display = "inline-block"
 saveGame()
@@ -585,7 +637,7 @@ function abilityTrigger() {
 
     // If ability is on cooldown -> decrement timer and update display, then skip charging
     if (ability.cooldownTimer > 0) {
-      ability.cooldownTimer -= tickMs / 1000;
+      ability.cooldownTimer -= (tickMs / 1000) * sprayCooldownMult
       if (ability.cooldownTimer <= 0) {
         ability.cooldownTimer = 0;
         ability.cooldownAsk = false;
@@ -617,7 +669,7 @@ function abilityTrigger() {
     if (oxygenDrain > 0) {
       remainingTime -= oxygenDrain;
 	unBlood += oxygenDrain;
-      ability.progress += oxygenDrain;
+      ability.progress += (oxygenDrain * spraySpeedMult);
     }
 
     // Fired
@@ -693,7 +745,9 @@ if (monsterObject.health <= 0) {
 }
 }
 function playerWin(monsterObject) {
-storyText.textContent = `The ${monsterObject.name} crumples to the floor. You get ${monsterObject.reward} corpse YAAAAY.`
+storyText.textContent = `The ${monsterObject.name} crumples to the floor. You get ${monsterObject.reward} tissue.`
+tissue += 1
+tissueCounter.textContent =  `${tissue} Tissue`
 combatEngaged = false
 combatDiv.style.display = 'none'
 }
@@ -1014,7 +1068,12 @@ willUpgrade.addEventListener('click', () => {
     updateDisplays();
   }
 });
-
+/*-----------Milestones--------*/
+function milestoneCalculate(amountExplored) {
+if (amountExplored >= 5){
+dna += 1
+}
+}
 
 /*-----------Body parts-----------*/
 heartRegular.addEventListener('input',() => {
@@ -1026,8 +1085,27 @@ heartLarge.addEventListener('input', () => {
 heartSize = 2
 heartBloodMult = 0.75
 })
-
+/*------------Ability upgrades----------*/
+sprayAttack.addEventListener('click', () => {
+if (tissue >= 5) {
+tissue -= 5
+sprayAttackMult += 1
+}
+})
+spraySpeed.addEventListener('click', () => {
+if (tissue >= 10) {
+tissue -= 10
+spraySpeedMult += 1
+}
+})
+sprayCooldown.addEventListener('click', () => {
+if (tissue >= 20) {
+tissue -= 20
+sprayCooldownMult += 1
+}
+})
 /* ---------- Initialization ---------- */
+
 function initAbilities() {
   // link slider elements once DOM is ready
   for (const ability of abilities) {
