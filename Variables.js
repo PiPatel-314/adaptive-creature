@@ -77,6 +77,7 @@ var combatShown = false
 
 var heartSize = 1
 var heartBloodMult = 1
+var realBloodTotal = 0
 var areaExplored = 0
 var tissue = 0
 var dna = 0
@@ -84,6 +85,9 @@ var dna = 0
 var sprayAttackMult = 1
 var spraySpeedMult = 1
 var sprayCooldownMult = 1
+
+var mapDown = 0
+var mapRight = 0
 /* --- Elements --- */
 var firstScreen = document.getElementsByClassName('first')
 
@@ -165,6 +169,8 @@ var sprayCooldown = document.getElementById('acid-cooldown')
 
 var combatTotalBlood = document.getElementById('combat-total-blood')
 var combatOxyBlood = document.getElementById('combat-oxy-blood')
+
+var mapDiv = document.getElementById('map-div')
 /* -----------Abilities----------*/
 var abilities = [
   {
@@ -208,6 +214,7 @@ damageEnemy(activeEnemy,(1 * sprayAttackMult))
 battleStart()
 };
 areaExplored += 1
+mapUpdate()
     }
   },
 {
@@ -277,5 +284,3 @@ attackDisplay: monsterAttack,
 nameDisplay: monsterName,
 reward: 1,
 }]
-
-
