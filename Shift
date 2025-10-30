@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<script src="Variables.js"></script>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Simple Counter</title>
+<style>
+  body{font-family:Arial, sans-serif;display:flex;height:100vh;background:#f0f0f0;padding:20px;gap:20px;box-sizing:border-box}
+  .card{background:#fff;padding:24px;border-radius:10px;box-shadow:0 4px 12px rgba(0,0,0,.08);width:320px}
+  h1{font-size:1.6rem;margin:0 0 12px}
+  h2{margin:6px 0}
+  button{display:inline-block;padding:10px 14px;border-radius:6px;border:none;background:#007BFF;color:#fff;cursor:pointer;margin:6px 0}
+  button:disabled{opacity:.5;cursor:not-allowed}
+  .will{display:none} /* hidden until unlocked */
+  ul{padding-left:18px;margin:8px 0}
+  .small{font-size:.9rem}
+.first {
+  display: grid;
+  grid-template-columns: 320px 1fr; /* left fixed column matches .card width */
+  gap: 20px;
+  align-items: start;
+  width: auto;
+  box-sizing: border-box;
+}
+.prestige{display:none}
+.hidden-organ{display:none}
+#brain-div { display: none; }
+#unblood-value { display: none; }
+#explore-div { display: none; }
+#ability-div { display: none; }
+#blood-total {display: none; }
+#combat-div {display: none; }
+#evolve {display: none;}
+#blood-display {
+ position: sticky;
+  top: 20px;
+  z-index: 100;
+  width: auto;       /* fills the left grid column */
+  box-sizing: border-box;
+}
+#run {width: auto;
+  box-sizing: border-box;}
+#explore-div,
+#spray-div {
+  display: none;
+}
+
+
+.tabs { display:flex; gap:8px; margin-bottom:12px; }
+.tab-btn { padding:8px 12px; border-radius:6px; border:1px solid #ddd; background:#fff; cursor:pointer; }
+.tab-btn.active { background:#007BFF; color:#fff; border-color:#007BFF; }
+.tab-panel { display:block; } /* we toggle via inline style or JS */
+</style>
+</head>
+<body>
+<div class="tabs">
+  <button class="tab-btn active" data-tab="main">Main</button>
+  <button class="tab-btn" data-tab="abilities">Abilities</button>
+  <button class="tab-btn" data-tab="combat">Combat</button>
+  <button class="tab-btn" data-tab="story">Story</button>
+  <button class="tab-btn" data-tab="body">Body</button>
+</div>
+
+<!-- Main Panel -->
+<div id="panel-main" class="tab-panel" style="display:block">
+	<button id="evolve">Evolve</button>
+
+  <div class="first">
+    <div class="card" id="blood-display">
+      <h1>????</h1>
+      <h2 id="blood-value">Blood: 0.00</h2>
+      <h2 id="unblood-value">Unoxygenated Blood: 0.00</h2>
+      <h2 id="blood-total">Blood total: 0</h2>
+      <h2 id="will-value">Will: 0.00</h2>
+      <div id="counter-value"></div>
+      <button id="increment-btn">Stop bleeding (gain Will)</button>
+      <button id="purchase-btn">Revive / Start</button>
+    </div>
+
+    <div class="card" id="run">
+      <button id="will-blood" class="will">Restores blood: 1 Will</button>
+      <button id="hope-mult" class="will">Doubles this run’s hope gain: 5 Will</button>
+      <button id="blood-produce" class="will">Produce blood: 10 Will</button>
+      <div style="margin-top:12px">
+        <ul>
+          <li><h2 id="hope-value" class="small">Hope: 0.00</h2></li>
+          <li><button id="will-gain" class="small">Increase will gain: 0.10 Hope</button></li>
+          <li><button id="blood-gain" class="small">Increase starting blood: 1 Hope</button></li>
+          <li><button id="will-upgrade" class="small">Discover will upgrades: 5 Hope</button></li>
+          <li><button id="blood-drain" class="small">Reduce blood drain: 10 Hope</button></li>
+          <li><button id="btn-blood-gain" class="small">Increase blood gain: 20 Hope</button></li>
+          <li><input type="text" id="dev-mode"></li>
+        </ul>
+      </div>
+
+      <div class="card prestige first" id="prestige-div">
+        <button id="evolve">Evolve</button>
+        <div id="prestigeTwo">
+          <h2 id="mutagen-label">Mutagen: 0</h2>
+          <button id="brain-unlock">Unlock the mind</button>
+        </div>
+
+        <div id="brain-div">
+          <h2 id="thought-label">Thoughts: 0</h2>
+          <input type="checkbox" id="think-btn">Think</input>
+	<button id="thought-blood-product">Increase blood production: 2 Thoughts</button>
+          <button id="explore-Btn">Unlock exploration: 5 Thoughts</button>
+          <button id="see-blood">Unlock blood type: 10 Thoughts</button>
+		<button id="acid-unlock">Unlock combat ability: 5 Thoughts</button>
+		<button id="thought-ability-unlock">Unlock thought ability: 20 Thoughts</button>
+<button id="thought-product">Increase thought production: 5 Thoughts</button>
+<button id="evolution-unlock">Unlock evolution: 100 Thoughts</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Abilities Panel -->
+<div id="panel-abilities" class="tab-panel">
+<div class="card">
+<h3 id="tissue-counter">Tissue: 0</h3>
+</div>
+<div id="abilitie-upgrade-div">
+<ul>
+<li><button id="acid-attack">Increase acid sprays attack: 5 tissue </button> </li>
+<li><button id="acid-speed">Increase acid sprays speed: 10 tissue</button></li>
+<li><button id="acid-cooldown">Reduce acid sprays cooldown: 5 tissue</button></li>
+</ul>
+</div>
+ </div>
+
+<!-- Combat Panel -->
+<div id="panel-combat" class="tab-panel">
+ <div class="card" id="ability-div">
+    <div id="explore-div">
+	<h3>Explore</h3>
+       <input id="explore-auto" type="range" min="0.0" max="5.0" value="0.0" class="slider"></input>
+      <h3 id="explore-count">Blood automation: 0/second</h3>
+      <h3 id="explore-value">0/1</h3>
+    </div>
+
+    <div id="spray-div">
+      <h3>Acid spray</h3>
+      <input id="spray-auto" type="range" min="0" max="10" value="0" class="slider"></input>
+      <h3 id="spray-count">Blood automation: 0/second</h3>
+      <h3 id="spray-value">0/2</h3>
+    </div>
+    <div id="crit-div">
+	<h3>Find weak points</h3>
+	<input id="crit-auto" type="range" min="0" max="10" value="0" class="slider"></input>
+	<h3 id="crit-count">Blood automation: 0/second</h3>
+	<h3 id="crit-value">0/3</h3>
+  </div>
+	<div id="heal-div">
+	<h3>Find weak points</h3>
+	<input id="heal-auto" type="range" min="0" max="10" value="0" class="slider"></input>
+	<h3 id="heal-count">Blood automation: 0/second</h3>
+	<h3 id="heal-value">0/3</h3>
+  </div>
+
+
+  <div id="combat-panel" class="card">
+    <h3 id="monster-name">Rat</h3>
+    <h3 id="monster-health">5/5</h3>
+    <h3 id="monster-attack">0/3</h3>
+  </div>
+</div>
+</div>
+<!-- Story Panel -->
+<div id="panel-story" class="tab-panel">
+  <div class="card">
+    <p id="story-text">You're bleeding out</p>
+  </div>
+</div>
+<div id="panel-body" class="tab-panel">
+<div class="card">
+<h3>DNA: 0</h3>
+</div>
+<div class="card">
+<ul>
+<li><input name="heart" type="radio" id="heart-regular" checked>Heart: regular stats</input></li>
+<li><input name="heart" type="radio" id="heart-large" class="hidden-organ">Large heart: Blood capacity X 2 blood production X 0.5</input><button id="heart-large-unlock">Unlock large brain: 1 DNA</button></li>
+</ul>
+</div>
+<div class="card">
+<ul>
+<li><input name="brain" type="radio" id="brain-regular" checked>Brain: regular stats</input></li>
+<li id="brain-large"><input name="brain" type="radio" class="hidden-organ">Large brain: Thought upgrades / 10                    Blood loss from thinking X 2</input></li>
+<li><button id="brain-large-unlock">Unlock large brain: 1 DNA</button></li>
+</ul>
+</div>
+<div class="card">
+<ul>
+<li><input name="eye" type="radio" id="eye-regular" class="hidden-organ">Eyes: unlock the map</input></li>
+<li><input name="eye" type="radio" id="eye-hexagonal" class="hidden-organ">Hexagonal eyes: unlock new drops for exploring</input></li>
+</ul>
+</div>
+</div>
+<script src="RunningFunction.js"></script>
+<script src="Button.js"></script>
+</body>
+</html>
