@@ -1,81 +1,4 @@
-/* --- Elements --- */
-var firstScreen = document.getElementsByClassName('first')
 
-var unBloodValue = document.getElementById('unblood-value')
-var bloodValue = document.getElementById('blood-value');
-var willText = document.getElementById('will-value');
-var hopeValue = document.getElementById('hope-value');
-var storyText = document.getElementById('story-text');
-
-var incrementButton = document.getElementById('increment-btn');
-var purchaseButton = document.getElementById('purchase-btn');
-
-var willBlood = document.getElementById('will-blood');
-var willGain = document.getElementById('will-gain');
-var bloodGain = document.getElementById('blood-gain');
-var willUpgrade = document.getElementById('will-upgrade');
-var hopeMult = document.getElementById('hope-mult');
-var bloodDrain = document.getElementById('blood-drain');
-var btnGainBlood = document.getElementById('btn-blood-gain');
-var bloodproduce = document.getElementById('blood-produce')
-
-var prestigeDiv = document.getElementById('prestige-div')
-var evolveBtn = document.getElementById('evolve')
-var prestigeGrade = document.getElementById('prestigeTwo')
-
-var mutagenLabel = document.getElementById('mutagen-label')
-var brainBtn = document.getElementById('brain-unlock')
-
-var brainDiv = document.getElementById('brain-div')
-var thinkBtn = document.getElementById('think-btn')
-var thoughtLabel = document.getElementById('thought-label')
-var exploreUnlock = document.getElementById('explore-Btn')
-var bloodUnlock = document.getElementById('see-blood')
-var thoughtBloodProduct = document.getElementById('thought-blood-product')
-var bloodTotalLabel = document.getElementById('blood-total')
-
-var exploreDiv = document.getElementById('explore-div')
-var abilityDiv = document.getElementById('ability-div')
-var exploreBtn = document.getElementById('explore-btn')
-var exploreAuto = document.getElementById('explore-auto')
-var exploreCount = document.getElementById('explore-count')
-var exploreValue = document.getElementById('explore-value')
-
-var sprayValue = document.getElementById('spray-value')
-var sprayCount = document.getElementById('spray-count')
-var sprayDiv = document.getElementById('spray-div')
-var sprayAuto = document.getElementById('spray-auto')
-
-
-var critCount = document.getElementById('crit-count')
-var critValue = document.getElementById('crit-value')
-var critDiv = document.getElementById('crit-div')
-
-var healCount = document.getElementById('heal-count')
-var healValue = document.getElementById('heal-value')
-var healDiv = document.getElementById('heal-div')
-
-
-var combatDiv = document.getElementById('combat-panel')
-var monsterName = document.getElementById('monster-name')
-var monsterAttack = document.getElementById('monster-attack')
-var monsterHealthLabel = document.getElementById('monster-health')
-
-var acidUnlock = document.getElementById('acid-unlock')
-var thoughtAbilityUnlock = document.getElementById('thought-ability-unlock')
-var thoughtProduct = document.getElementById('thought-product')
-var evolutionUnlock = document.getElementById('evolution-unlock')
-
-var devMode = document.getElementById('dev-mode');
-
-var heartLarge = document.getElementById('heart-large')
-var heartRegular = document.getElementById('heart-regular')
-
-var tissueCounter = document.getElementById('tissue-counter')
-
-var sprayAttack = document.getElementById('acid-attack')
-var spraySpeed = document.getElementById('acid-speed')
-var sprayCooldown = document.getElementById('acid-cooldown')
 /* ---------- Utility ---------- */
 function resetGame() {
   localStorage.removeItem('gameSave');
@@ -111,6 +34,8 @@ bloodValue.textContent = (remainingTime > 0 && !dead) ? `Oxygenated Blood: ${rem
 	thoughtLabel.textContent = `Thoughts: ${thought.toFixed(2)}`
 	unBloodValue.textContent = `Unoxygenated Blood: ${unBlood.toFixed(2)}`
 	bloodTotalLabel.textContent = `Blood total: ${bloodTotal}` 
+        combatTotalBlood.textContent = bloodTotalLabel.textContent
+ 	combatOxyBlood.textContent = bloodValue.textContent
 saveGame()
 }
 
@@ -355,7 +280,7 @@ combatDiv.style.display = 'none'
 function battleStart() {
 monsterSelect()
 var monsterObject = monsterArr[activeEnemy]
-monsterArr[activeEnemy].health = mosterArr[activeEnemy].maxHealth
+monsterArr[activeEnemy].health = monsterArr[activeEnemy].maxHealth
 storyText.textContent = `a ${monsterObject.name} aproaches`
 combatEngaged = true
 combatDiv.style.display = 'inline-block'
@@ -363,6 +288,10 @@ combatDiv.style.display = 'inline-block'
 
 function monsterSelect() {
 activeEnemy = 0
+}
+function healPlayer(healing) {
+unBlood += healing
+bloodTotal += healing
 }
 
 function updateCombatUI() {
@@ -490,3 +419,5 @@ setInterval(saveGame, 5000)
 updateDisplays();
 // (optionally auto-start)
 startRun();
+evolved = true
+prestigeTrigger()
