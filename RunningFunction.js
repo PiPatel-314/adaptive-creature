@@ -69,6 +69,7 @@ function startRun(){
   will = 0;
   trueWill = 0;
   bloodTotal = Startblood * heartSize
+  realBloodTotal = bloodTotal
   storyText.textContent = "You're bleeding out";
   clearInterval(timerInterval);
   timerInterval = setInterval(updateTimer, tickMs);
@@ -292,6 +293,36 @@ activeEnemy = 0
 function healPlayer(healing) {
 unBlood += healing
 bloodTotal += healing
+if (bloodTotal >= realBloodTotal) {
+bloodTotal = realBloodTotal
+}
+}
+function mapMaker() {
+const newTable = document.createElement("table")
+const newTableBody = document.createElement('tbody')
+for (let i = 0;i < 4; i++) {
+const row = document.createElement('tr')
+newTableBody.appendChild(row)
+	for (let j = 0; j < 4; j++){
+	const cell = document.createElement('td')
+		cell.id = `${i}-${j}`
+	const cellText = document.createTextNode('ahh')
+	cell.appendChild(cellText)
+	row.appendChild(cell)
+}
+}
+newTable.appendChild(newTableBody)
+mapDiv.appendChild(newTable)
+}
+function mapUpdate() {
+const evilCell = document.getElementById(`${mapDown}-${mapRight}`)
+evilCell.textContent = 'done'
+mapRight += 1
+if (mapRight == 4) {
+mapRight = 0
+mapDown += 1
+}
+
 }
 
 function updateCombatUI() {
