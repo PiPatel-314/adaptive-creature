@@ -100,6 +100,7 @@ exploreUnlock.style.display = 'none'
 abilityDiv.style.display = 'inline-block'
 abilities[1].unlocked = true
 updateDisplays()
+mapMaker()
 }
 })
 thinkBtn.addEventListener('click',() => {
