@@ -226,6 +226,7 @@ abilityDiv.style.display = 'inline-block'
 acidUnlock.style.display = 'none'
 abilityTriggerable = true
 abilities[0].unlocked = true
+abilities[3].unlocked = true
 }
 })
 
