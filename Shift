@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<script src="Variables.js"></script>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
 <title>Simple Counter</title>
@@ -154,17 +153,23 @@
 	<h3 id="crit-value">0/3</h3>
   </div>
 	<div id="heal-div">
-	<h3>Find weak points</h3>
+	<h3>Bind wounds</h3>
 	<input id="heal-auto" type="range" min="0" max="10" value="0" class="slider"></input>
 	<h3 id="heal-count">Blood automation: 0/second</h3>
 	<h3 id="heal-value">0/3</h3>
   </div>
-
+	<div id="map-div">Man what a cool map we have here the person who made this map is so cool.</div>
 
   <div id="combat-panel" class="card">
+    <div id="player-panel">
+    <h3 id="combat-total-blood">Blood:0/0</h3>
+    <h3 id="combat-oxy-blood">Oxy blood: 0/0</h3>
+</div>
+    <div id="monster-panel">
     <h3 id="monster-name">Rat</h3>
     <h3 id="monster-health">5/5</h3>
     <h3 id="monster-attack">0/3</h3>
+    </div>
   </div>
 </div>
 </div>
@@ -181,23 +186,30 @@
 <div class="card">
 <ul>
 <li><input name="heart" type="radio" id="heart-regular" checked>Heart: regular stats</input></li>
-<li><input name="heart" type="radio" id="heart-large" class="hidden-organ">Large heart: Blood capacity X 2 blood production X 0.5</input><button id="heart-large-unlock">Unlock large brain: 1 DNA</button></li>
+<li>
+  <input name="heart" type="radio" id="heart-large" class="hidden-organ">
+  <label for="heart-large" class="hidden-organ">Large heart: Blood capacity ×2, blood production ×0.5</label>
+  <button id="heart-large-unlock">Unlock large heart: 1 DNA</button>
+</li>
 </ul>
 </div>
 <div class="card">
 <ul>
 <li><input name="brain" type="radio" id="brain-regular" checked>Brain: regular stats</input></li>
-<li id="brain-large"><input name="brain" type="radio" class="hidden-organ">Large brain: Thought upgrades / 10                    Blood loss from thinking X 2</input></li>
-<li><button id="brain-large-unlock">Unlock large brain: 1 DNA</button></li>
+<li id="brain-large">
+<input name="brain" type="radio" class="hidden-organ"><label for="brain-large" class="hidden-organ">Large brain: Thought upgrades / 10                    Blood loss from thinking X 2</label><button id="brain-large-unlock">Unlock large brain: 1 DNA</button>
+</li>
 </ul>
 </div>
 <div class="card">
 <ul>
-<li><input name="eye" type="radio" id="eye-regular" class="hidden-organ">Eyes: unlock the map</input></li>
-<li><input name="eye" type="radio" id="eye-hexagonal" class="hidden-organ">Hexagonal eyes: unlock new drops for exploring</input></li>
+<li><input name="eye" type="radio" id="eye-regular" class="hidden-organ"><label for="eye-regular" class="hidden-organ">Eyes: unlock the map</label><button id="eye-regular-unlock">Unlock eyes: 1 DNA</button>
+</li>
+<li><input name="eye" type="radio" id="eye-hexagonal" class="hidden-organ"><label for="eye-hexagonal" class="hidden-organ">Hexagonal eyes: unlock new drops for exploring</label><button id="eye-hexagonal-unlock">Unlock hexagonal eyes: 1 DNA</button></li>
 </ul>
 </div>
 </div>
+<script src="Variables.js"></script>
 <script src="RunningFunction.js"></script>
 <script src="Button.js"></script>
 </body>
