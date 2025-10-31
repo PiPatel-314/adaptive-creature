@@ -22,6 +22,9 @@
   width: auto;
   box-sizing: border-box;
 }
+.drag {
+cursor: move;
+}
 .prestige{display:none}
 .hidden-organ{display:none}
 #brain-div { display: none; }
@@ -43,6 +46,10 @@
 #explore-div,
 #spray-div {
   display: none;
+}
+#abilitie-select-holder{max-Height: 200px;
+overflow: auto;
+
 }
 
 
@@ -128,6 +135,12 @@
 <li><button id="acid-cooldown">Reduce acid sprays cooldown: 5 tissue</button></li>
 </ul>
 </div>
+<div id="abilitie-select-holder">
+<div id="spray-holder" class="drag" draggable="true" class="card"><p>Spray attack cost: 2 cooldown: 3 does 1 damage to the closest enemy</p></div>
+<div id="explore-holder" class="drag" draggable="true">ha</div>
+<div  id="crit-holder" class="drag" draggable="true">ha</div>
+<div id="heal-holder" class="drag" draggable="true">ha</div>
+</div>
  </div>
 
 <!-- Combat Panel -->
@@ -158,7 +171,7 @@
 	<h3 id="heal-count">Blood automation: 0/second</h3>
 	<h3 id="heal-value">0/3</h3>
   </div>
-	<div id="map-div">Man what a cool map we have here the person who made this map is so cool.</div>
+	<div id="map-div"></div>
 
   <div id="combat-panel" class="card">
     <div id="player-panel">
