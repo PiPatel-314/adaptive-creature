@@ -88,6 +88,10 @@ var sprayCooldownMult = 1
 
 var mapDown = 0
 var mapRight = 0
+
+var draggingDown = 0 
+var draggingRight = 0
+var draggedObject = ""
 /* --- Elements --- */
 var firstScreen = document.getElementsByClassName('first')
 
@@ -171,6 +175,13 @@ var combatTotalBlood = document.getElementById('combat-total-blood')
 var combatOxyBlood = document.getElementById('combat-oxy-blood')
 
 var mapDiv = document.getElementById('map-div')
+
+var sprayHolder = document.getElementById('spray-holder')
+var exploreHolder = document.getElementById('explore-holder')
+var critHolder = document.getElementById('crit-holder')
+var healHolder = document.getElementById('heal-holder')
+
+var abilitieSelectHolder = document.getElementById('abilitie-select-holder')
 /* -----------Abilities----------*/
 var abilities = [
   {
@@ -284,3 +295,4 @@ attackDisplay: monsterAttack,
 nameDisplay: monsterName,
 reward: 1,
 }]
+
