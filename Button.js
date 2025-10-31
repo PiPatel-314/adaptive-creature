@@ -325,3 +325,10 @@ tissue -= 20
 sprayCooldownMult += 1
 }
 })
+/*-------------Dragging objects------------*/
+abilitieSelectHolder.addEventListener('dragstart', () => {
+if (event.target.classList.contains('drag')) {
+event.target.textContent = 'Put me down!!!!!'
+draggedObject = event.target.id
+}
+})
